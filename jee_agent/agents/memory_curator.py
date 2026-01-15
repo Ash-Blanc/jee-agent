@@ -2,7 +2,11 @@ from textwrap import dedent
 from typing import List
 from pydantic import BaseModel, Field
 from agno.agent import Agent
+from agno.db.sqlite import SqliteDb
 from agno.tools.memory import MemoryTools
+
+# Create a database connection for memory storage
+memory_db = SqliteDb(db_file="data/student_memory.db")
 
 class TopicUpdate(BaseModel):
     """Update for a specific topic's progress"""
@@ -37,7 +41,7 @@ MemoryCuratorAgent = Agent(
         model="mistral:mistral-small-latest",
         description="Extracts and stores learnings from every interaction",
         # Use MemoryTools for intelligent memory management
-        tools=[MemoryTools(add_instructions=True)],
+        tools=[MemoryTools(db=memory_db, add_instructions=True)],
         # Structured output for memory updates
         output_schema=MemoryUpdate,
         instructions=dedent("""

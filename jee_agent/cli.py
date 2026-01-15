@@ -47,12 +47,34 @@ def get_or_create_student(student_id: Optional[str] = None) -> StudentState:
     ))
     
     name = Prompt.ask("What's your name?", default="Student")
+    target_rank = Prompt.ask("What is your target percentile or rank?", default="99th Percentile")
     
+    # Study Schedule
+    console.print("\n[bold]Study Schedule Pattern[/bold]")
+    weekday_hours = float(Prompt.ask("Hours available on [cyan]Weekdays[/cyan]", default="6"))
+    weekend_hours = float(Prompt.ask("Hours available on [cyan]Weekends[/cyan]", default="10"))
+    
+    # Generate next 8 days schedule (starting today)
     daily_hours = []
-    console.print("\n[yellow]How many hours can you study each day until the exam?[/yellow]")
+    today = date.today().weekday() # 0=Monday, 6=Sunday
     for i in range(8):
-        hours = float(Prompt.ask(f"Day {i+1}", default="10"))
-        daily_hours.append(hours)
+        current_day = (today + i) % 7
+        if current_day < 5: # Weekday
+            daily_hours.append(weekday_hours)
+        else: # Weekend
+            daily_hours.append(weekend_hours)
+
+    # Initial Confidence
+    console.print("\n[bold]Current Confidence (1-10)[/bold]")
+    conf_p = int(Prompt.ask("Physics", default="5"))
+    conf_c = int(Prompt.ask("Chemistry", default="5"))
+    conf_m = int(Prompt.ask("Math", default="5"))
+    
+    focus = Prompt.ask(
+        "\n[bold]Primary Focus[/bold]",
+        choices=["Syllabus Completion", "Revision & Practice", "Mock Tests"],
+        default="Revision & Practice"
+    )
     
     energy_time = Prompt.ask(
         "When do you focus best?",
@@ -65,8 +87,15 @@ def get_or_create_student(student_id: Optional[str] = None) -> StudentState:
         name=name,
         exam_date=date.fromisoformat(EXAM_DATE),
         daily_hours_available=daily_hours,
-        energy_peak_time=energy_time
+        energy_peak_time=energy_time,
+        target_rank=target_rank,
+        primary_focus=focus
     )
+    
+    # Initialize topic confidence (simplified mapping)
+    # In a real app, we'd map this to specific topics, but for now we set a baseline
+    # Note: We aren't setting individual topic confidence here to avoid complexity,
+    # but the agents will use the general confidence level context.
     
     # Save to database
     db.upsert(student.student_id, student.model_dump(mode='json'))
@@ -121,8 +150,10 @@ def start_session(student: StudentState):
     # Initial planning context
     planning_context = f"""
     Student: {student.name}
+    Target: {student.target_rank}
+    Focus: {student.primary_focus}
     Days remaining: {student.days_remaining()}
-    Today's available hours: {student.daily_hours_available}
+    Today's available hours: {student.daily_hours_available[0]} (Weekly Pattern set)
     Energy peak: {student.energy_peak_time}
     Overall accuracy: {student.get_overall_accuracy():.1%}
     Weakest topics: {[t.topic_name for t in student.get_weakest_topics(5)]}

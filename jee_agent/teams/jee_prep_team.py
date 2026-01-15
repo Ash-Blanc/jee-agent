@@ -1,3 +1,4 @@
+from textwrap import dedent
 from uuid import uuid4
 from agno.team import Team
 from agno.db.postgres import PostgresDb
@@ -34,13 +35,12 @@ def create_jee_prep_team(student_id: str, session_id: str | None = None, db: Pos
             # Extract path from sqlite:///path/to/db
             db_path = DATABASE_URL.replace("sqlite:///", "")
             db = SqliteDb(
-                table_name="jee_prep_sessions",
                 db_file=db_path
             )
         else:
             # Use PostgresDb for production
             db = PostgresDb(
-                session_table="jee_prep_sessions",
+                table_name="jee_prep_sessions",
                 db_url=DATABASE_URL
             )
     

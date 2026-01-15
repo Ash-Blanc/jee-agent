@@ -62,6 +62,8 @@ class StudentState(BaseModel):
     student_id: str
     name: str = "Student"
     exam_date: date
+    target_rank: Optional[str] = None
+    primary_focus: str = "Revision & Practice"
     daily_hours_available: List[float] = Field(default_factory=lambda: [10.0] * 8)
     energy_peak_time: str = "morning"
     
