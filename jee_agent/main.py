@@ -17,7 +17,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 
-from agno.db.postgres import PostgresDb
+from jee_agent.storage.postgres_storage import StudentStorage
 
 from jee_agent.config.settings import DATABASE_URL, EXAM_DATE
 from jee_agent.storage.student_state import StudentState, SessionLog
@@ -28,8 +28,8 @@ from jee_agent.workflows.study_session import StudySessionWorkflow
 app = typer.Typer()
 console = Console()
 
-# Use Agno's PostgresDb for proper session management
-db = PostgresDb(session_table="students", db_url=DATABASE_URL)
+# Use custom Postgres storage for student state
+db = StudentStorage()
 
 
 def get_or_create_student(student_id: Optional[str] = None) -> StudentState:
@@ -241,9 +241,11 @@ def start(student_id: Optional[str] = None):
 def reset():
     """Reset all student data (use with caution)"""
     if Confirm.ask("[red]This will delete ALL student data. Are you sure?[/red]"):
-        if os.path.exists(DB_PATH):
-            os.remove(DB_PATH)
-        console.print("[green]Data reset complete.[/green]")
+        try:
+            db.clear()
+            console.print("[green]Data reset complete.[/green]")
+        except Exception as e:
+            console.print(f"[red]Error resetting data: {e}[/red]")
 
 
 if __name__ == "__main__":
