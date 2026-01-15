@@ -1,7 +1,7 @@
 from textwrap import dedent
 from uuid import uuid4
 from agno.team import Team
-from agno.db.sqlite import SqliteDb
+from agno.db.postgres import PostgresDb
 from agno.models.openai import OpenAIChat
 
 from agents import (
@@ -13,7 +13,7 @@ from agents import (
     MemoryCuratorAgent
 )
 from knowledge.pyq_loader import PYQKnowledge
-from config.settings import DB_PATH, PRIMARY_MODEL
+from config.settings import DATABASE_URL, PRIMARY_MODEL
 
 def create_jee_prep_team(student_id: str, session_id: str | None = None) -> Team:
     """
@@ -27,10 +27,10 @@ def create_jee_prep_team(student_id: str, session_id: str | None = None) -> Team
         Configured Team instance with all agents and memory
     """
     
-    # Use SqliteDb for proper session and memory management
-    db = SqliteDb(
+    # Use PostgresDb for production-grade session and memory management
+    db = PostgresDb(
         table_name="jee_prep_sessions",
-        db_file=DB_PATH
+        db_url=DATABASE_URL
     )
     
     # Initialize knowledge base

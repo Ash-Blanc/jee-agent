@@ -17,9 +17,9 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 
-from agno.db.sqlite import SqliteDb
+from agno.db.postgres import PostgresDb
 
-from config.settings import DB_PATH, EXAM_DATE
+from config.settings import DATABASE_URL, EXAM_DATE
 from storage.student_state import StudentState, SessionLog
 from teams.jee_prep_team import create_jee_prep_team
 from workflows.study_session import StudySessionWorkflow
@@ -28,8 +28,8 @@ from workflows.study_session import StudySessionWorkflow
 app = typer.Typer()
 console = Console()
 
-# Use Agno's SqliteDb for proper session management
-db = SqliteDb(table_name="students", db_file=DB_PATH)
+# Use Agno's PostgresDb for proper session management
+db = PostgresDb(table_name="students", db_url=DATABASE_URL)
 
 
 def get_or_create_student(student_id: Optional[str] = None) -> StudentState:

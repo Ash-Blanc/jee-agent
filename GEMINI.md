@@ -17,7 +17,7 @@ The **JEE Prep AI Agent System** is an adaptive, multi-agent CLI application des
     *   `StressMonitorAgent`: Monitors student well-being.
     *   `MemoryCuratorAgent`: Manages long-term student memory.
 *   **Data Storage:**
-    *   **Relational:** SQLite (`data/jee_student.db`) for student profiles and session logs.
+    *   **Relational:** PostgreSQL (configured via `DATABASE_URL`) for student profiles and session logs.
     *   **Vector:** LanceDB (`data/vector_store`) for semantic search over PYQs.
 *   **Configuration:** Centralized in `app/config/settings.py`.
 
