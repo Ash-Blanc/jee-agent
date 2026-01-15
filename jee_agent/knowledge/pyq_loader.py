@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 from typing import List, Optional
 from enum import Enum
-from agno.knowledge.json import JSONKnowledgeBase
+from agno.knowledge.knowledge import Knowledge
+from agno.knowledge.reader.json_reader import JSONReader
 from agno.knowledge.embedder.mistral import MistralEmbedder
 from agno.vectordb.lancedb import LanceDb, SearchType
 from jee_agent.config.settings import VECTOR_DB_PATH, EMBEDDING_MODEL
@@ -37,11 +38,17 @@ class PYQKnowledge:
             search_type=SearchType.hybrid,
             embedder=MistralEmbedder(id=EMBEDDING_MODEL)
         )
-        self.knowledge_base = JSONKnowledgeBase(
-            path="data/pyqs/",
-            vector_db=self.vector_db
+        # Initialize generic Knowledge base
+        self.knowledge_base = Knowledge(
+            vector_db=self.vector_db,
+            # We don't load on init to avoid overhead/duplication, 
+            # assume data is loaded or will be loaded via a separate script/method
         )
     
+    def load_data(self, path: str = "jee_agent/data/pyqs/"):
+        """Loads data from JSON files into the vector database"""
+        self.knowledge_base.load(path=path, reader=JSONReader())
+
     def search_pyqs(
         self, 
         topic: str, 
@@ -52,13 +59,30 @@ class PYQKnowledge:
         if difficulty:
             query += f" {difficulty.value} level"
         
+        # Knowledge.search returns list of Document objects
         results = self.knowledge_base.search(query, limit=limit)
-        return [PYQ(**r.metadata) for r in results if r.metadata]
+        
+        # Convert Document metadata back to PYQ objects
+        pyqs = []
+        for r in results:
+            if r.meta:
+                 # Ensure strict validation or handle potential missing fields
+                 try:
+                     pyqs.append(PYQ(**r.meta))
+                 except Exception:
+                     continue
+        return pyqs
     
     def get_high_frequency_pyqs(self, subject: str, limit: int = 10) -> List[PYQ]:
         query = f"Most frequently asked {subject} JEE patterns"
         results = self.knowledge_base.search(query, limit=limit)
-        pyqs = [PYQ(**r.metadata) for r in results if r.metadata]
+        pyqs = []
+        for r in results:
+            if r.meta:
+                 try:
+                     pyqs.append(PYQ(**r.meta))
+                 except Exception:
+                     continue
         return sorted(pyqs, key=lambda x: x.frequency_score, reverse=True)
     
     def get_progressive_set(self, topic: str, count: int = 5) -> List[PYQ]:
