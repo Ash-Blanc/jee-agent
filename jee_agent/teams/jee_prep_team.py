@@ -28,7 +28,7 @@ def create_jee_prep_team(student_id: str, session_id: str | None = None) -> Team
     
     # Use PostgresDb for production-grade session and memory management
     db = PostgresDb(
-        table_name="jee_prep_sessions",
+        session_table="jee_prep_sessions",
         db_url=DATABASE_URL
     )
     

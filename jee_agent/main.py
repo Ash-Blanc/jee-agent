@@ -29,7 +29,7 @@ app = typer.Typer()
 console = Console()
 
 # Use Agno's PostgresDb for proper session management
-db = PostgresDb(table_name="students", db_url=DATABASE_URL)
+db = PostgresDb(session_table="students", db_url=DATABASE_URL)
 
 
 def get_or_create_student(student_id: Optional[str] = None) -> StudentState:

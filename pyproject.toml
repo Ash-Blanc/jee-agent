@@ -17,6 +17,8 @@ dependencies = [
     "mistralai>=1.0.0",
     "groq>=0.4.0",
     "litellm>=1.0.0",
+    "youtube-transcript-api>=1.2.3",
+    "fastapi>=0.128.0",
 ]
 
 [project.optional-dependencies]
