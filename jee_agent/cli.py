@@ -16,6 +16,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 from agno.models.openai import OpenAIChat
+from agno.models.mistral import Mistral
+from agno.models.groq import Groq
 
 # Suppress Pydantic serialization warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
@@ -41,19 +43,19 @@ MODEL_MAP = {
     "mistral": {
         "primary": "mistral-large-latest",
         "fast": "open-mistral-nemo",
-        "base_url": "https://api.mistral.ai/v1",
+        "class": Mistral,
         "api_key_name": "MISTRAL_API_KEY"
     },
     "openai": {
         "primary": "gpt-4o",
         "fast": "gpt-4o-mini",
-        "base_url": None,
+        "class": OpenAIChat,
         "api_key_name": "OPENAI_API_KEY"
     },
     "groq": {
         "primary": "llama-3.3-70b-versatile",
         "fast": "llama-3.1-8b-instant",
-        "base_url": "https://api.groq.com/openai/v1",
+        "class": Groq,
         "api_key_name": "GROQ_API_KEY"
     }
 }
@@ -270,11 +272,11 @@ def start_session(student: StudentState):
                     continue
 
                 new_models = MODEL_MAP[provider]
+                ModelClass = new_models["class"]
                 
                 # Update team leader
-                team.model = OpenAIChat(
+                team.model = ModelClass(
                     id=new_models["primary"],
-                    base_url=new_models["base_url"],
                     api_key=os.getenv(new_models["api_key_name"])
                 )
                 
@@ -286,9 +288,8 @@ def start_session(student: StudentState):
                     else:
                         model_id = new_models["primary"]
                         
-                    member.model = OpenAIChat(
+                    member.model = ModelClass(
                         id=model_id,
-                        base_url=new_models["base_url"],
                         api_key=os.getenv(new_models["api_key_name"])
                     )
                 
