@@ -2,7 +2,7 @@ from textwrap import dedent
 from uuid import uuid4
 from agno.team import Team
 from agno.db.postgres import PostgresDb
-from agno.models.litellm import LiteLLM
+from agno.models.openai import OpenAIChat
 
 from jee_agent.agents import (
     DailyPlannerAgent,
@@ -13,7 +13,7 @@ from jee_agent.agents import (
     MemoryCuratorAgent
 )
 from jee_agent.storage.database import agent_db
-from jee_agent.config.settings import PRIMARY_MODEL, FALLBACK_MODEL
+from jee_agent.config.settings import PRIMARY_MODEL, FALLBACK_MODEL, MISTRAL_API_KEY
 
 def create_jee_prep_team(student_id: str, session_id: str | None = None, db: PostgresDb | None = None) -> Team:
     """
@@ -32,10 +32,12 @@ def create_jee_prep_team(student_id: str, session_id: str | None = None, db: Pos
     if db is None:
         db = agent_db
     
-    # Configure model with fallback using LiteLLM
-    model = LiteLLM(
-        id=PRIMARY_MODEL,
-        request_params={"fallbacks": [FALLBACK_MODEL]}
+    # Configure model using OpenAIChat compatible endpoint for Mistral
+    # This bypasses potential serialization issues with LiteLLM/Groq integration
+    model = OpenAIChat(
+        id="mistral-large-latest",
+        base_url="https://api.mistral.ai/v1",
+        api_key=MISTRAL_API_KEY
     )
     
     # Instantiate PYQ Agent (this may trigger DB connection for vector store)
