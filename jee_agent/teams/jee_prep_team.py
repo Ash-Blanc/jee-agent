@@ -2,7 +2,6 @@ from textwrap import dedent
 from uuid import uuid4
 from agno.team import Team
 from agno.db.postgres import PostgresDb
-from agno.db.sqlite import SqliteDb
 from agno.models.litellm import LiteLLM
 
 from jee_agent.agents import (
@@ -13,47 +12,27 @@ from jee_agent.agents import (
     StressMonitorAgent,
     MemoryCuratorAgent
 )
-from jee_agent.knowledge.pyq_loader import PYQKnowledge
-from jee_agent.config.settings import DATABASE_URL, PRIMARY_MODEL, FALLBACK_MODEL
+from jee_agent.storage.database import agent_db
+from jee_agent.config.settings import PRIMARY_MODEL, FALLBACK_MODEL
 
-def create_jee_prep_team(student_id: str, session_id: str | None = None, db: PostgresDb | SqliteDb | None = None) -> Team:
+def create_jee_prep_team(student_id: str, session_id: str | None = None, db: PostgresDb | None = None) -> Team:
     """
     Creates the full JEE prep team with proper Agno best practices.
     
     Args:
         student_id: Unique identifier for the student
         session_id: Optional session ID for continuing conversations
-        db: Optional database instance for session storage
+        db: Optional database instance for session storage (defaults to agent_db)
         
     Returns:
         Configured Team instance with all agents and memory
     """
     
-    # Choose DB backend based on configuration if not provided
+    # Use centralized database if not provided
     if db is None:
-        if DATABASE_URL.startswith("sqlite"):
-            # Extract path from sqlite:///path/to/db
-            db_path = DATABASE_URL.replace("sqlite:///", "")
-            db = SqliteDb(
-                db_file=db_path
-            )
-        else:
-            # Use PostgresDb for production
-            db = PostgresDb(
-                table_name="jee_prep_sessions",
-                db_url=DATABASE_URL
-            )
+        db = agent_db
     
-    # Initialize knowledge base
-    pyq_knowledge = PYQKnowledge()
-    
-    # Create all agents with proper configuration
-    daily_planner = DailyPlannerAgent()
-    pyq_curator = PYQCuratorAgent(pyq_knowledge)
-    theory_coach = TheoryCoachAgent()
-    lecture_optimizer = LectureOptimizerAgent()
-    stress_monitor = StressMonitorAgent()
-    memory_curator = MemoryCuratorAgent()
+    # Agents are already instantiated at module level, use directly
     
     # Configure model with fallback using LiteLLM
     model = LiteLLM(
@@ -66,12 +45,12 @@ def create_jee_prep_team(student_id: str, session_id: str | None = None, db: Pos
         name="JEE Adaptive Learning System",
         model=model,
         members=[
-            daily_planner,
-            pyq_curator,
-            theory_coach,
-            lecture_optimizer,
-            stress_monitor,
-            memory_curator
+            DailyPlannerAgent,
+            PYQCuratorAgent,
+            TheoryCoachAgent,
+            LectureOptimizerAgent,
+            StressMonitorAgent,
+            MemoryCuratorAgent
         ],
         # Database for session persistence
         db=db,
@@ -124,7 +103,7 @@ def create_jee_prep_team(student_id: str, session_id: str | None = None, db: Pos
         """),
         # Response configuration
         markdown=True,
-        show_tool_calls=False,  # Keep UI clean
+        # show_tool_calls=False,  # Keep UI clean
         show_members_responses=True,  # Show which agent is responding
         add_datetime_to_context=True,
         # Members respond directly without team leader synthesis

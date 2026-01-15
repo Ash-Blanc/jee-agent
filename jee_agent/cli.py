@@ -15,7 +15,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 
-from jee_agent.storage.db import StudentStorage
+from jee_agent.storage.database import StudentStorage
 
 from jee_agent.config.settings import DATABASE_URL, EXAM_DATE
 from jee_agent.storage.student_state import StudentState, SessionLog
@@ -38,6 +38,13 @@ def get_or_create_student(student_id: Optional[str] = None) -> StudentState:
         stored = db.get(student_id)
         if stored:
             return StudentState(**stored)
+    else:
+        # Try to find last active student for single-user convenience
+        stored = db.get_last_student()
+        if stored:
+            student = StudentState(**stored)
+            console.print(f"[green]Welcome back, {student.name}![/green]")
+            return student
     
     # Create new student
     console.print(Panel.fit(

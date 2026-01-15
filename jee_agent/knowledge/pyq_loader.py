@@ -4,13 +4,15 @@ from enum import Enum
 from agno.knowledge.knowledge import Knowledge
 from agno.knowledge.reader.json_reader import JSONReader
 from agno.knowledge.embedder.mistral import MistralEmbedder
-from agno.vectordb.lancedb import LanceDb, SearchType
-from jee_agent.config.settings import VECTOR_DB_PATH, EMBEDDING_MODEL
+from agno.vectordb.pgvector import PgVector, SearchType
+from jee_agent.config.settings import DATABASE_URL, EMBEDDING_MODEL
+
 
 class Difficulty(str, Enum):
     EASY = "easy"
     MEDIUM = "medium"
     HARD = "hard"
+
 
 class PYQ(BaseModel):
     id: str
@@ -28,12 +30,13 @@ class PYQ(BaseModel):
     time_expected_secs: int
     tags: List[str] = []
 
+
 class PYQKnowledge:
-    """Manages the PYQ knowledge base with vector search"""
+    """Manages the PYQ knowledge base with PostgreSQL vector search (PgVector)"""
     
     def __init__(self):
-        self.vector_db = LanceDb(
-            uri=VECTOR_DB_PATH,
+        self.vector_db = PgVector(
+            db_url=DATABASE_URL,
             table_name="jee_pyqs",
             search_type=SearchType.hybrid,
             embedder=MistralEmbedder(id=EMBEDDING_MODEL)

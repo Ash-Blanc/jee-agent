@@ -2,6 +2,10 @@ from textwrap import dedent
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from agno.agent import Agent
+from jee_agent.knowledge.pyq_loader import PYQKnowledge
+
+# Initialize PYQ knowledge base
+pyq_knowledge = PYQKnowledge()
 
 class PYQResponse(BaseModel):
     """Structured PYQ question response"""
@@ -29,7 +33,7 @@ class PYQFeedback(BaseModel):
 PYQCuratorAgent = Agent(
         name="PYQ Curator",
         model="mistral:mistral-small-latest",
-        knowledge="jee_agent/knowledge/pyq_loader.py",
+        knowledge=pyq_knowledge.knowledge_base,
         search_knowledge=True,
         description="Curates and serves relevant PYQs based on student's current level",
         # Use structured output for type-safe responses
