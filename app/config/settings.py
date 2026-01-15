@@ -1,0 +1,27 @@
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# API Keys
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+
+# Database
+DB_PATH = "data/jee_student.db"
+VECTOR_DB_PATH = "data/vector_store"
+
+# Model Configuration
+PRIMARY_MODEL = "gpt-4o"
+FAST_MODEL = "gpt-4o-mini"
+EMBEDDING_MODEL = "text-embedding-3-small"
+
+# JEE Exam Config
+EXAM_DATE = "2026-01-23"
+TOTAL_MARKS = 300
+QUESTIONS_PER_SUBJECT = 25
+
+# Session Config
+MAX_SESSION_HOURS = 3
+BREAK_INTERVAL_MINS = 90
+DEFAULT_DAILY_HOURS = 10
