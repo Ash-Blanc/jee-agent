@@ -71,7 +71,7 @@ def get_or_create_student(student_id: Optional[str] = None) -> StudentState:
     )
     
     # Save to database
-    db.upsert(student.student_id, student.model_dump())
+    db.upsert(student.student_id, student.model_dump(mode='json'))
     
     return student
 
@@ -192,7 +192,7 @@ def end_session(student: StudentState):
         student.current_session = None
         
         # Save to database
-        db.upsert(student.student_id, student.model_dump())
+        db.upsert(student.student_id, student.model_dump(mode='json'))
         
         console.print(Panel.fit(
             f"[bold green]Session Complete![/bold green]\n"
