@@ -38,6 +38,31 @@ Built using Agno's multi-agent framework:
 - **Structured Outputs**: Type-safe responses using Pydantic models
 - **Session Management**: Multi-user support with proper state isolation
 
+## PostgreSQL Setup
+
+The system requires PostgreSQL with the `pgvector` extension.
+
+### Using Docker Compose (Recommended)
+
+```bash
+docker compose up -d
+```
+
+### Using Docker Run
+
+```bash
+docker run -d \
+  -e POSTGRES_DB=jee_agent \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -v pgvolume:/var/lib/postgresql/data \
+  -p 5432:5432 \
+  --name pgvector \
+  pgvector/pgvector:pg16
+```
+
+Ensure the database is running before starting the CLI or AgentOS.
+
 ## Quick Start
 
 ### Prerequisites
