@@ -4,8 +4,6 @@ from pydantic import BaseModel, Field
 from agno.agent import Agent
 from jee_agent.knowledge.pyq_loader import PYQKnowledge
 
-# Initialize PYQ knowledge base
-pyq_knowledge = PYQKnowledge()
 
 class PYQResponse(BaseModel):
     """Structured PYQ question response"""
@@ -30,7 +28,12 @@ class PYQFeedback(BaseModel):
     next_difficulty: str = Field(description="Recommended next difficulty level")
 
 
-PYQCuratorAgent = Agent(
+def get_pyq_curator_agent() -> Agent:
+    """Creates the PYQ Curator agent with lazy-loaded knowledge base"""
+    # Initialize knowledge base only when requested
+    pyq_knowledge = PYQKnowledge()
+    
+    return Agent(
         name="PYQ Curator",
         model="mistral:mistral-small-latest",
         knowledge=pyq_knowledge.knowledge_base,

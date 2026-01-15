@@ -26,12 +26,27 @@ from jee_agent.workflows.study_session import StudySessionWorkflow
 app = typer.Typer()
 console = Console()
 
-# Use custom Postgres storage for student state
-db = StudentStorage()
+
+def get_db() -> StudentStorage:
+    """Get database connection with error handling"""
+    try:
+        return StudentStorage()
+    except Exception as e:
+        if "connection refused" in str(e).lower() or "connection to server" in str(e).lower():
+            console.print(Panel.fit(
+                "[bold red]Cannot connect to Database![/bold red]\n\n"
+                "Please ensure PostgreSQL is running via Docker:\n"
+                "[cyan]docker compose up -d[/cyan]\n\n"
+                f"Error details: {e}",
+                title="❌ Connection Error"
+            ))
+            raise typer.Exit(code=1)
+        raise e
 
 
 def get_or_create_student(student_id: Optional[str] = None) -> StudentState:
     """Load existing student or create new one"""
+    db = get_db()
     
     if student_id:
         # Try to load existing
@@ -149,10 +164,23 @@ def start_session(student: StudentState):
     ))
     
     # Create team with proper user_id and session_id
-    team = create_jee_prep_team(
-        student_id=student.student_id,
-        session_id=session.session_id
-    )
+    try:
+        team = create_jee_prep_team(
+            student_id=student.student_id,
+            session_id=session.session_id
+        )
+    except Exception as e:
+        # Check for connection refused error
+        if "connection refused" in str(e).lower() or "connection to server" in str(e).lower():
+            console.print(Panel.fit(
+                "[bold red]Cannot connect to Database![/bold red]\n\n"
+                "Please ensure PostgreSQL is running via Docker:\n"
+                "[cyan]docker compose up -d[/cyan]\n\n"
+                f"Error details: {e}",
+                title="❌ Connection Error"
+            ))
+            return
+        raise e
     
     # Initial planning context
     planning_context = f"""
@@ -228,7 +256,7 @@ def end_session(student: StudentState):
         student.current_session = None
         
         # Save to database
-        db.upsert(student.student_id, student.model_dump(mode='json'))
+        get_db().upsert(student.student_id, student.model_dump(mode='json'))
         
         console.print(Panel.fit(
             f"[bold green]Session Complete![/bold green]\n" 
@@ -278,7 +306,7 @@ def reset():
     """Reset all student data (use with caution)"""
     if Confirm.ask("[red]This will delete ALL student data. Are you sure?[/red]"):
         try:
-            db.clear()
+            get_db().clear()
             console.print("[green]Data reset complete.[/green]")
         except Exception as e:
             console.print(f"[red]Error resetting data: {e}[/red]")

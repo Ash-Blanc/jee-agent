@@ -5,12 +5,11 @@ from agno.models.openai import OpenAIChat
 
 from jee_agent.agents import (
     DailyPlannerAgent,
-    PYQCuratorAgent,
+    get_pyq_curator_agent,
     TheoryCoachAgent,
     StressMonitorAgent,
     MemoryCuratorAgent
 )
-from jee_agent.knowledge.pyq_loader import PYQKnowledge
 from jee_agent.storage.student_state import StudentState
 from jee_agent.config.settings import PRIMARY_MODEL
 
@@ -22,14 +21,13 @@ class StudySessionWorkflow:
     
     def __init__(self, student_state: StudentState):
         self.student_state = student_state
-        self.pyq_knowledge = PYQKnowledge()
         
         # Initialize agents
-        self.planner = DailyPlannerAgent()
-        self.pyq_curator = PYQCuratorAgent(self.pyq_knowledge)
-        self.theory_coach = TheoryCoachAgent()
-        self.stress_monitor = StressMonitorAgent()
-        self.memory_curator = MemoryCuratorAgent()
+        self.planner = DailyPlannerAgent
+        self.pyq_curator = get_pyq_curator_agent()
+        self.theory_coach = TheoryCoachAgent
+        self.stress_monitor = StressMonitorAgent
+        self.memory_curator = MemoryCuratorAgent
     
     def create_topic_practice_workflow(self, topic: str, subject: str) -> Workflow:
         """Creates a workflow for practicing a single topic"""

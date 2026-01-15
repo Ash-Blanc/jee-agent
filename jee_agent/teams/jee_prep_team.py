@@ -6,7 +6,7 @@ from agno.models.litellm import LiteLLM
 
 from jee_agent.agents import (
     DailyPlannerAgent,
-    PYQCuratorAgent,
+    get_pyq_curator_agent,
     TheoryCoachAgent,
     LectureOptimizerAgent,
     StressMonitorAgent,
@@ -32,13 +32,14 @@ def create_jee_prep_team(student_id: str, session_id: str | None = None, db: Pos
     if db is None:
         db = agent_db
     
-    # Agents are already instantiated at module level, use directly
-    
     # Configure model with fallback using LiteLLM
     model = LiteLLM(
         id=PRIMARY_MODEL,
         request_params={"fallbacks": [FALLBACK_MODEL]}
     )
+    
+    # Instantiate PYQ Agent (this may trigger DB connection for vector store)
+    pyq_agent = get_pyq_curator_agent()
     
     # Create coordinated team with Agno best practices
     team = Team(
@@ -46,7 +47,7 @@ def create_jee_prep_team(student_id: str, session_id: str | None = None, db: Pos
         model=model,
         members=[
             DailyPlannerAgent,
-            PYQCuratorAgent,
+            pyq_agent,
             TheoryCoachAgent,
             LectureOptimizerAgent,
             StressMonitorAgent,
