@@ -5,7 +5,7 @@ from agno.knowledge.knowledge import Knowledge
 from agno.knowledge.reader.json_reader import JSONReader
 from agno.knowledge.embedder.mistral import MistralEmbedder
 from agno.vectordb.pgvector import PgVector, SearchType
-from jee_agent.config.settings import DATABASE_URL, EMBEDDING_MODEL
+from jee_agent.config.settings import DATABASE_URL, EMBEDDING_MODEL, MISTRAL_API_KEY
 
 
 class Difficulty(str, Enum):
@@ -39,7 +39,7 @@ class PYQKnowledge:
             db_url=DATABASE_URL,
             table_name="jee_pyqs",
             search_type=SearchType.hybrid,
-            embedder=MistralEmbedder(id=EMBEDDING_MODEL)
+            embedder=MistralEmbedder(id=EMBEDDING_MODEL, api_key=MISTRAL_API_KEY)
         )
         # Initialize generic Knowledge base
         self.knowledge_base = Knowledge(
@@ -62,8 +62,13 @@ class PYQKnowledge:
         if difficulty:
             query += f" {difficulty.value} level"
         
-        # Knowledge.search returns list of Document objects
-        results = self.knowledge_base.search(query, limit=limit)
+        try:
+            # Knowledge.search returns list of Document objects
+            results = self.knowledge_base.search(query, limit=limit)
+        except Exception as e:
+            # Return empty list on embedding/search failure to prevent crash
+            print(f"Error searching PYQs: {e}")
+            return []
         
         # Convert Document metadata back to PYQ objects
         pyqs = []
@@ -78,7 +83,12 @@ class PYQKnowledge:
     
     def get_high_frequency_pyqs(self, subject: str, limit: int = 10) -> List[PYQ]:
         query = f"Most frequently asked {subject} JEE patterns"
-        results = self.knowledge_base.search(query, limit=limit)
+        try:
+            results = self.knowledge_base.search(query, limit=limit)
+        except Exception as e:
+            print(f"Error getting high freq PYQs: {e}")
+            return []
+            
         pyqs = []
         for r in results:
             if r.meta:
@@ -90,7 +100,10 @@ class PYQKnowledge:
     
     def get_progressive_set(self, topic: str, count: int = 5) -> List[PYQ]:
         """Returns PYQs in easy -> medium -> hard progression"""
-        easy = self.search_pyqs(topic, Difficulty.EASY, limit=2)
-        medium = self.search_pyqs(topic, Difficulty.MEDIUM, limit=2)
-        hard = self.search_pyqs(topic, Difficulty.HARD, limit=1)
-        return (easy + medium + hard)[:count]
+        try:
+            easy = self.search_pyqs(topic, Difficulty.EASY, limit=2)
+            medium = self.search_pyqs(topic, Difficulty.MEDIUM, limit=2)
+            hard = self.search_pyqs(topic, Difficulty.HARD, limit=1)
+            return (easy + medium + hard)[:count]
+        except Exception:
+            return []

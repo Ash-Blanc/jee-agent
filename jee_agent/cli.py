@@ -344,6 +344,16 @@ def end_session(student: StudentState):
 def start(student_id: Optional[str] = None):
     """Start the JEE Prep AI system"""
     
+    # Check for critical API keys
+    if not MISTRAL_API_KEY:
+        console.print(Panel.fit(
+            "[bold yellow]Warning: MISTRAL_API_KEY not found![/bold yellow]\n\n"
+            "The knowledge base (PYQs) relies on Mistral embeddings.\n"
+            "Without this key, vector search will fail.\n"
+            "You can still use other features, but question curation won't work.",
+            title="⚠️ Missing Configuration"
+        ))
+    
     console.print(Panel.fit(
         "[bold cyan]JEE PREP AI SYSTEM[/bold cyan]\n" 
         "Powered by Agno Multi-Agent Framework",
