@@ -2,10 +2,7 @@ from textwrap import dedent
 from typing import List
 from pydantic import BaseModel, Field
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
 from agno.tools.memory import MemoryTools
-from jee_agent.config.settings import FAST_MODEL
-
 
 class TopicUpdate(BaseModel):
     """Update for a specific topic's progress"""
@@ -35,10 +32,9 @@ class MemoryUpdate(BaseModel):
     next_session_focus: str = Field(description="What to focus on next session")
 
 
-def create_memory_curator_agent() -> Agent:
-    return Agent(
+MemoryCuratorAgent = Agent(
         name="Learning Memory Curator",
-        model=OpenAIChat(id=FAST_MODEL),
+        model="mistral:mistral-small-latest",
         description="Extracts and stores learnings from every interaction",
         # Use MemoryTools for intelligent memory management
         tools=[MemoryTools(add_instructions=True)],
@@ -94,5 +90,3 @@ def create_memory_curator_agent() -> Agent:
         """),
         markdown=True
     )
-
-MemoryCuratorAgent = create_memory_curator_agent

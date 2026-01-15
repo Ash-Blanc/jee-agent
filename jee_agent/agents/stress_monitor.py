@@ -2,9 +2,6 @@ from textwrap import dedent
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
-from jee_agent.config.settings import FAST_MODEL
-
 
 class StressSignal(BaseModel):
     """Detected stress signal"""
@@ -38,10 +35,9 @@ class StressReport(BaseModel):
     continue_session: bool = Field(description="Whether session should continue")
 
 
-def create_stress_monitor_agent() -> Agent:
-    return Agent(
+StressMonitorAgent = Agent(
         name="Wellbeing Guardian",
-        model=OpenAIChat(id=FAST_MODEL),  # Fast model for real-time monitoring
+        model="mistral:mistral-small-latest",  # Fast model for real-time monitoring
         description="Monitors student stress and intervenes to prevent burnout",
         # Structured output for stress reports
         output_schema=StressReport,
@@ -101,5 +97,3 @@ def create_stress_monitor_agent() -> Agent:
         """),
         markdown=True
     )
-
-StressMonitorAgent = create_stress_monitor_agent

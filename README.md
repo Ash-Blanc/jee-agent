@@ -2,14 +2,31 @@
 
 An adaptive, multi-agent AI system for JEE Main 2026 preparation built with [Agno](https://docs.agno.com).
 
-## Features
+## 🚀 Key Features
 
-- **Adaptive Learning**: Personalized study plans based on your performance
-- **Smart PYQ Curation**: AI-powered question selection matching your level
-- **Just-in-Time Theory**: Micro-theory injections when you're stuck
-- **Stress Monitoring**: Wellbeing guardian prevents burnout
-- **Memory System**: Learns your patterns and preferences over time
-- **Lecture Optimization**: Smart speed recommendations and timestamp navigation
+### 🧠 Specialized Multi-Agent Team
+Orchestrates a team of 6 specialized AI agents, each with a distinct role in your preparation:
+*   **Daily Planner**: Generates adaptive study schedules based on your target hours, energy peaks, and exam weightage.
+*   **PYQ Curator**: Dynamically serves Previous Year Questions using vector search (LanceDB), adjusting difficulty (Easy → Medium → Hard) based on your performance.
+*   **Theory Coach**: Provides just-in-time micro-theory explanations only when you've been stuck for more than 2 minutes.
+*   **Lecture Optimizer**: Recommends optimal watch speeds and key timestamps for JEE lectures to maximize content retention.
+*   **Stress Monitor**: Background well-being guardian that detects burnout signals and suggests breaks or session adjustments.
+*   **Memory Curator**: Manages long-term student state, extracting behavioral patterns, breakthroughs, and struggle points from every interaction.
+
+### 📊 Adaptive Progress Tracking
+*   **Student State Persistence**: Complete history of sessions, topic-wise accuracy, and confidence levels stored in PostgreSQL/SQLite.
+*   **Diagnostic Assessment**: Structured workflow to identify your strengths and weaknesses across Physics, Chemistry, and Mathematics.
+*   **Pattern Recognition**: Identifies high-weightage topics where you're losing marks and adjusts your learning path accordingly.
+
+### 🛠️ Production-Ready Infrastructure
+*   **AgentOS Integration**: Fully compatible with Agno's AgentOS for managing, monitoring, and scaling your agentic system.
+*   **Session Isolation**: Multi-user support with rigorous session management for consistent and personalized experiences.
+*   **Vector Knowledge Base**: Hybrid search over thousands of PYQs with LanceDB for lightning-fast, semantically relevant question retrieval.
+
+### 💻 Interactive CLI
+*   Beautiful terminal interface built with **Rich** and **Typer**.
+*   Real-time streaming responses from the agent team.
+*   Intuitive commands for planning, progress tracking, and session management.
 
 ## Architecture
 
@@ -48,28 +65,43 @@ python main.py start
 ## Project Structure
 
 ```
-├── agents/              # Specialized AI agents
-│   ├── daily_planner.py
-│   ├── pyq_curator.py
-│   ├── theory_coach.py
-│   ├── lecture_optimizer.py
-│   ├── stress_monitor.py
-│   └── memory_curator.py
-├── teams/               # Multi-agent teams
-│   └── jee_prep_team.py
-├── workflows/           # Deterministic workflows
-│   └── study_session.py
-├── knowledge/           # Knowledge bases
-│   └── pyq_loader.py
-├── storage/             # State management
-│   └── student_state.py
-├── config/              # Configuration
-│   └── settings.py
-├── data/                # Data files
-│   ├── pyqs/           # Previous year questions
-│   └── syllabus/       # JEE syllabus
-└── main.py             # Entry point
+├── jee_agent/           # Core application package
+│   ├── agents/          # Specialized AI agents
+│   │   ├── daily_planner.py
+│   │   ├── pyq_curator.py
+│   │   ├── theory_coach.py
+│   │   ├── lecture_optimizer.py
+│   │   ├── stress_monitor.py
+│   │   └── memory_curator.py
+│   ├── teams/           # Multi-agent teams
+│   │   └── jee_prep_team.py
+│   ├── workflows/       # Deterministic workflows
+│   │   └── study_session.py
+│   ├── knowledge/       # Knowledge bases
+│   │   └── pyq_loader.py
+│   ├── storage/         # State management
+│   │   ├── db.py        # Student storage
+│   │   └── student_state.py
+│   ├── config/          # Configuration
+│   │   └── settings.py
+│   ├── data/            # Data files (PYQs, Syllabus)
+│   ├── cli.py           # CLI application logic
+│   ├── os.py            # AgentOS definition
+│   └── main.py          # Entry point
+├── data/                # Local database storage
+├── pyproject.toml       # Project metadata and dependencies
+└── .env                 # Environment variables
 ```
+
+## Running AgentOS
+
+The system is ready for Agno's AgentOS. To start the AgentOS runtime:
+
+```bash
+python -m agno.os.serve jee_agent.os:agent_os
+```
+
+This will start a FastAPI server that exposes your agentic system as an API, compatible with the Agno Control Plane.
 
 ## Key Concepts
 

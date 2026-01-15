@@ -2,9 +2,7 @@ from textwrap import dedent
 from typing import List
 from pydantic import BaseModel, Field
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
-from jee_agent.config.settings import PRIMARY_MODEL, EXAM_DATE
-
+from jee_agent.config.settings import EXAM_DATE
 
 class TimeBlock(BaseModel):
     """Structured time block for study plan"""
@@ -26,11 +24,9 @@ class DailyPlan(BaseModel):
     motivation_message: str = Field(description="Personalized motivation for the day")
     key_goals: List[str] = Field(description="Top 3 goals for the day")
 
-
-def create_daily_planner_agent() -> Agent:
-    return Agent(
+DailyPlannerAgent = Agent(
         name="Daily Planner",
-        model=OpenAIChat(id=PRIMARY_MODEL),
+        model="mistral:mistral-small-latest",
         description="Creates and adapts daily study plans based on student progress",
         # Use structured output for type-safe responses
         output_schema=DailyPlan,
@@ -66,5 +62,3 @@ def create_daily_planner_agent() -> Agent:
         markdown=True,
         add_datetime_to_context=True
     )
-
-DailyPlannerAgent = create_daily_planner_agent

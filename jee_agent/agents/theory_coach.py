@@ -1,12 +1,9 @@
 from textwrap import dedent
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
-from jee_agent.config.settings import PRIMARY_MODEL
 
-def create_theory_coach_agent() -> Agent:
-    return Agent(
+TheoryCoachAgent = Agent(
         name="Micro Theory Coach",
-        model=OpenAIChat(id=PRIMARY_MODEL),
+        model="mistral:mistral-medium-latest",
         description="Provides just-in-time theory when student is stuck",
         instructions=dedent("""
             You are a micro-theory coach. You ONLY activate when student is stuck.
@@ -45,5 +42,3 @@ def create_theory_coach_agent() -> Agent:
         """),
         markdown=True
     )
-
-TheoryCoachAgent = create_theory_coach_agent

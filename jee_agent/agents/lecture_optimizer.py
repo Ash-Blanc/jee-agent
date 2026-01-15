@@ -1,13 +1,10 @@
 from textwrap import dedent
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
 from agno.tools.youtube import YouTubeTools
-from jee_agent.config.settings import PRIMARY_MODEL
 
-def create_lecture_optimizer_agent() -> Agent:
-    return Agent(
+LectureOptimizerAgent = Agent(
         name="Lecture Flow Controller",
-        model=OpenAIChat(id=PRIMARY_MODEL),
+        model="mistral:mistral-small-latest",
         tools=[YouTubeTools()],
         description="Optimizes which lectures to watch, when, and at what speed",
         instructions=dedent("""
@@ -42,5 +39,3 @@ def create_lecture_optimizer_agent() -> Agent:
         """),
         markdown=True
     )
-
-LectureOptimizerAgent = create_lecture_optimizer_agent

@@ -2,10 +2,6 @@ from textwrap import dedent
 from typing import List, Optional
 from pydantic import BaseModel, Field
 from agno.agent import Agent
-from agno.models.openai import OpenAIChat
-from jee_agent.knowledge.pyq_loader import PYQKnowledge
-from jee_agent.config.settings import PRIMARY_MODEL
-
 
 class PYQResponse(BaseModel):
     """Structured PYQ question response"""
@@ -30,11 +26,10 @@ class PYQFeedback(BaseModel):
     next_difficulty: str = Field(description="Recommended next difficulty level")
 
 
-def create_pyq_curator_agent(knowledge: PYQKnowledge) -> Agent:
-    return Agent(
+PYQCuratorAgent = Agent(
         name="PYQ Curator",
-        model=OpenAIChat(id=PRIMARY_MODEL),
-        knowledge=knowledge.knowledge_base,
+        model="mistral:mistral-small-latest",
+        knowledge="jee_agent/knowledge/pyq_loader.py",
         search_knowledge=True,
         description="Curates and serves relevant PYQs based on student's current level",
         # Use structured output for type-safe responses
@@ -69,5 +64,3 @@ def create_pyq_curator_agent(knowledge: PYQKnowledge) -> Agent:
         """),
         markdown=True
     )
-
-PYQCuratorAgent = create_pyq_curator_agent

@@ -15,32 +15,34 @@ from jee_agent.agents import (
 from jee_agent.knowledge.pyq_loader import PYQKnowledge
 from jee_agent.config.settings import DATABASE_URL, PRIMARY_MODEL, FALLBACK_MODEL
 
-def create_jee_prep_team(student_id: str, session_id: str | None = None) -> Team:
+def create_jee_prep_team(student_id: str, session_id: str | None = None, db: PostgresDb | SqliteDb | None = None) -> Team:
     """
     Creates the full JEE prep team with proper Agno best practices.
     
     Args:
         student_id: Unique identifier for the student
         session_id: Optional session ID for continuing conversations
+        db: Optional database instance for session storage
         
     Returns:
         Configured Team instance with all agents and memory
     """
     
-    # Choose DB backend based on configuration
-    if DATABASE_URL.startswith("sqlite"):
-        # Extract path from sqlite:///path/to/db
-        db_path = DATABASE_URL.replace("sqlite:///", "")
-        db = SqliteDb(
-            table_name="jee_prep_sessions",
-            db_file=db_path
-        )
-    else:
-        # Use PostgresDb for production
-        db = PostgresDb(
-            session_table="jee_prep_sessions",
-            db_url=DATABASE_URL
-        )
+    # Choose DB backend based on configuration if not provided
+    if db is None:
+        if DATABASE_URL.startswith("sqlite"):
+            # Extract path from sqlite:///path/to/db
+            db_path = DATABASE_URL.replace("sqlite:///", "")
+            db = SqliteDb(
+                table_name="jee_prep_sessions",
+                db_file=db_path
+            )
+        else:
+            # Use PostgresDb for production
+            db = PostgresDb(
+                session_table="jee_prep_sessions",
+                db_url=DATABASE_URL
+            )
     
     # Initialize knowledge base
     pyq_knowledge = PYQKnowledge()
