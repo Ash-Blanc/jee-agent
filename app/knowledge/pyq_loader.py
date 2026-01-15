@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from typing import List, Optional
 from enum import Enum
 from agno.knowledge.json import JSONKnowledgeBase
-from agno.knowledge.embedder.openai import OpenAIEmbedder
+from agno.knowledge.embedder.mistral import MistralEmbedder
 from agno.vectordb.lancedb import LanceDb, SearchType
 from config.settings import VECTOR_DB_PATH, EMBEDDING_MODEL
 
@@ -35,7 +35,7 @@ class PYQKnowledge:
             uri=VECTOR_DB_PATH,
             table_name="jee_pyqs",
             search_type=SearchType.hybrid,
-            embedder=OpenAIEmbedder(id=EMBEDDING_MODEL)
+            embedder=MistralEmbedder(id=EMBEDDING_MODEL)
         )
         self.knowledge_base = JSONKnowledgeBase(
             path="data/pyqs/",

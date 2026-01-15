@@ -1,8 +1,7 @@
-from textwrap import dedent
 from uuid import uuid4
 from agno.team import Team
 from agno.db.postgres import PostgresDb
-from agno.models.openai import OpenAIChat
+from agno.models.litellm import LiteLLM
 
 from agents import (
     DailyPlannerAgent,
@@ -13,7 +12,7 @@ from agents import (
     MemoryCuratorAgent
 )
 from knowledge.pyq_loader import PYQKnowledge
-from config.settings import DATABASE_URL, PRIMARY_MODEL
+from config.settings import DATABASE_URL, PRIMARY_MODEL, FALLBACK_MODEL
 
 def create_jee_prep_team(student_id: str, session_id: str | None = None) -> Team:
     """
@@ -44,10 +43,16 @@ def create_jee_prep_team(student_id: str, session_id: str | None = None) -> Team
     stress_monitor = StressMonitorAgent()
     memory_curator = MemoryCuratorAgent()
     
+    # Configure model with fallback using LiteLLM
+    model = LiteLLM(
+        id=PRIMARY_MODEL,
+        request_params={"fallbacks": [FALLBACK_MODEL]}
+    )
+    
     # Create coordinated team with Agno best practices
     team = Team(
         name="JEE Adaptive Learning System",
-        model=OpenAIChat(id=PRIMARY_MODEL),
+        model=model,
         members=[
             daily_planner,
             pyq_curator,
