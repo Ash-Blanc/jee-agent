@@ -1,6 +1,7 @@
 from uuid import uuid4
 from agno.team import Team
 from agno.db.postgres import PostgresDb
+from agno.db.sqlite import SqliteDb
 from agno.models.litellm import LiteLLM
 
 from jee_agent.agents import (
@@ -26,11 +27,20 @@ def create_jee_prep_team(student_id: str, session_id: str | None = None) -> Team
         Configured Team instance with all agents and memory
     """
     
-    # Use PostgresDb for production-grade session and memory management
-    db = PostgresDb(
-        session_table="jee_prep_sessions",
-        db_url=DATABASE_URL
-    )
+    # Choose DB backend based on configuration
+    if DATABASE_URL.startswith("sqlite"):
+        # Extract path from sqlite:///path/to/db
+        db_path = DATABASE_URL.replace("sqlite:///", "")
+        db = SqliteDb(
+            table_name="jee_prep_sessions",
+            db_file=db_path
+        )
+    else:
+        # Use PostgresDb for production
+        db = PostgresDb(
+            session_table="jee_prep_sessions",
+            db_url=DATABASE_URL
+        )
     
     # Initialize knowledge base
     pyq_knowledge = PYQKnowledge()

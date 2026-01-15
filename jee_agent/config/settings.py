@@ -11,7 +11,8 @@ MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 # Database
 DB_PATH = "data/jee_student.db"
 VECTOR_DB_PATH = "data/vector_store"
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+psycopg://postgres:postgres@localhost:5432/jee_agent")
+# Default to SQLite for ease of use, override via env var for Postgres
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///data/jee_student.db")
 
 # Model Configuration
 PRIMARY_MODEL = "mistral/mistral-large-latest"

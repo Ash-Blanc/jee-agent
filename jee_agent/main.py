@@ -17,7 +17,7 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 
-from jee_agent.storage.postgres_storage import StudentStorage
+from jee_agent.storage.db import StudentStorage
 
 from jee_agent.config.settings import DATABASE_URL, EXAM_DATE
 from jee_agent.storage.student_state import StudentState, SessionLog
