@@ -6,6 +6,7 @@ Built with Agno multi-agent framework
 
 import os
 import uuid
+import warnings
 from datetime import date, datetime
 from typing import Optional
 
@@ -14,10 +15,20 @@ from rich import print
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
+from agno.models.litellm import LiteLLM
+
+# Suppress Pydantic serialization warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 from jee_agent.storage.database import StudentStorage
 
-from jee_agent.config.settings import DATABASE_URL, EXAM_DATE
+from jee_agent.config.settings import (
+    DATABASE_URL, 
+    EXAM_DATE, 
+    OPENAI_API_KEY, 
+    MISTRAL_API_KEY, 
+    GROQ_API_KEY
+)
 from jee_agent.storage.student_state import StudentState, SessionLog
 from jee_agent.teams.jee_prep_team import create_jee_prep_team
 from jee_agent.workflows.study_session import StudySessionWorkflow
@@ -25,6 +36,24 @@ from jee_agent.workflows.study_session import StudySessionWorkflow
 # Initialize
 app = typer.Typer()
 console = Console()
+
+MODEL_MAP = {
+    "mistral": {
+        "primary": "mistral/mistral-large-latest",
+        "fast": "mistral/open-mistral-nemo",
+        "fallback": "groq/llama-3.3-70b-versatile"
+    },
+    "openai": {
+        "primary": "openai/gpt-4o",
+        "fast": "openai/gpt-4o-mini",
+        "fallback": "mistral/mistral-large-latest"
+    },
+    "groq": {
+        "primary": "groq/llama-3.3-70b-versatile",
+        "fast": "groq/llama-3.1-8b-instant",
+        "fallback": "mistral/mistral-large-latest"
+    }
+}
 
 
 def get_db() -> StudentStorage:
@@ -206,7 +235,7 @@ def start_session(student: StudentState):
     
     # Main interaction loop
     console.print("\n[green]Ready to start! Type your questions or responses below.[/green]")
-    console.print("[dim]Commands: /plan (show plan), /progress (show progress), /break (take break), /quit (end session)[/dim]\n")
+    console.print("[dim]Commands: /plan (show plan), /progress (show progress), /break (take break), /model <provider>, /quit (end session)[/dim]\n")
     
     while True:
         try:
@@ -215,6 +244,51 @@ def start_session(student: StudentState):
             # Handle commands
             if user_input.lower() == "/quit":
                 break
+            elif user_input.lower().startswith("/model"):
+                parts = user_input.split()
+                if len(parts) < 2:
+                    console.print("[red]Usage: /model <provider> (mistral, openai, groq)[/red]")
+                    continue
+                
+                provider = parts[1].lower()
+                if provider not in MODEL_MAP:
+                    console.print(f"[red]Unsupported provider: {provider}. Use: mistral, openai, or groq.[/red]")
+                    continue
+                
+                # Check for API keys
+                if provider == "openai" and not OPENAI_API_KEY:
+                    console.print("[red]Error: OPENAI_API_KEY not found in environment.[/red]")
+                    continue
+                if provider == "mistral" and not MISTRAL_API_KEY:
+                    console.print("[red]Error: MISTRAL_API_KEY not found in environment.[/red]")
+                    continue
+                if provider == "groq" and not GROQ_API_KEY:
+                    console.print("[red]Error: GROQ_API_KEY not found in environment.[/red]")
+                    continue
+
+                new_models = MODEL_MAP[provider]
+                
+                # Update team leader
+                team.model = LiteLLM(
+                    id=new_models["primary"],
+                    request_params={"fallbacks": [new_models["fallback"]]}
+                )
+                
+                # Update all members
+                for member in team.members:
+                    # Wellbeing Guardian and Learning Memory Curator get the fast model
+                    if member.name in ["Wellbeing Guardian", "Learning Memory Curator", "Lecture Flow Controller"]:
+                        member.model = LiteLLM(id=new_models["fast"])
+                    else:
+                        member.model = LiteLLM(id=new_models["primary"])
+                
+                console.print(Panel(
+                    f"[green]Switched to [bold]{provider.upper()}[/bold] provider[/green]\n"
+                    f"[dim]Primary Model: {new_models['primary']}\n"
+                    f"Fast Model: {new_models['fast']}[/dim]",
+                    title="🤖 Model Provider Updated"
+                ))
+                continue
             elif user_input.lower() == "/plan":
                 team.print_response(
                     "Show me today's remaining plan",
