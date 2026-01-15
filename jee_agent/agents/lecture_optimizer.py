@@ -2,7 +2,7 @@ from textwrap import dedent
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.tools.youtube import YouTubeTools
-from config.settings import PRIMARY_MODEL
+from jee_agent.config.settings import PRIMARY_MODEL
 
 def create_lecture_optimizer_agent() -> Agent:
     return Agent(

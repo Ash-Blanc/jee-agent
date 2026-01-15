@@ -3,16 +3,16 @@ from agno.workflow import Workflow
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 
-from agents import (
+from jee_agent.agents import (
     DailyPlannerAgent,
     PYQCuratorAgent,
     TheoryCoachAgent,
     StressMonitorAgent,
     MemoryCuratorAgent
 )
-from knowledge.pyq_loader import PYQKnowledge
-from storage.student_state import StudentState
-from config.settings import PRIMARY_MODEL
+from jee_agent.knowledge.pyq_loader import PYQKnowledge
+from jee_agent.storage.student_state import StudentState
+from jee_agent.config.settings import PRIMARY_MODEL
 
 class StudySessionWorkflow:
     """

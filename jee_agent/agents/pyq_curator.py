@@ -3,8 +3,8 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
-from knowledge.pyq_loader import PYQKnowledge
-from config.settings import PRIMARY_MODEL
+from jee_agent.knowledge.pyq_loader import PYQKnowledge
+from jee_agent.config.settings import PRIMARY_MODEL
 
 
 class PYQResponse(BaseModel):

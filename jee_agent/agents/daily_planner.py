@@ -3,7 +3,7 @@ from typing import List
 from pydantic import BaseModel, Field
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
-from config.settings import PRIMARY_MODEL, EXAM_DATE
+from jee_agent.config.settings import PRIMARY_MODEL, EXAM_DATE
 
 
 class TimeBlock(BaseModel):

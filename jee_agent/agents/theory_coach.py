@@ -1,7 +1,7 @@
 from textwrap import dedent
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
-from config.settings import PRIMARY_MODEL
+from jee_agent.config.settings import PRIMARY_MODEL
 
 def create_theory_coach_agent() -> Agent:
     return Agent(

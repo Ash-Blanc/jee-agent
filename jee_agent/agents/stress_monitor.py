@@ -3,7 +3,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
-from config.settings import FAST_MODEL
+from jee_agent.config.settings import FAST_MODEL
 
 
 class StressSignal(BaseModel):

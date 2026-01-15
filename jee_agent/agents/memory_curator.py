@@ -4,7 +4,7 @@ from pydantic import BaseModel, Field
 from agno.agent import Agent
 from agno.models.openai import OpenAIChat
 from agno.tools.memory import MemoryTools
-from config.settings import FAST_MODEL
+from jee_agent.config.settings import FAST_MODEL
 
 
 class TopicUpdate(BaseModel):

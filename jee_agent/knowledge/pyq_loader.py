@@ -4,7 +4,7 @@ from enum import Enum
 from agno.knowledge.json import JSONKnowledgeBase
 from agno.knowledge.embedder.mistral import MistralEmbedder
 from agno.vectordb.lancedb import LanceDb, SearchType
-from config.settings import VECTOR_DB_PATH, EMBEDDING_MODEL
+from jee_agent.config.settings import VECTOR_DB_PATH, EMBEDDING_MODEL
 
 class Difficulty(str, Enum):
     EASY = "easy"

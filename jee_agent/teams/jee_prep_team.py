@@ -3,7 +3,7 @@ from agno.team import Team
 from agno.db.postgres import PostgresDb
 from agno.models.litellm import LiteLLM
 
-from agents import (
+from jee_agent.agents import (
     DailyPlannerAgent,
     PYQCuratorAgent,
     TheoryCoachAgent,
@@ -11,8 +11,8 @@ from agents import (
     StressMonitorAgent,
     MemoryCuratorAgent
 )
-from knowledge.pyq_loader import PYQKnowledge
-from config.settings import DATABASE_URL, PRIMARY_MODEL, FALLBACK_MODEL
+from jee_agent.knowledge.pyq_loader import PYQKnowledge
+from jee_agent.config.settings import DATABASE_URL, PRIMARY_MODEL, FALLBACK_MODEL
 
 def create_jee_prep_team(student_id: str, session_id: str | None = None) -> Team:
     """

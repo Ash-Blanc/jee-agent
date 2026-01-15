@@ -19,10 +19,10 @@ from rich.prompt import Prompt, Confirm
 
 from agno.db.postgres import PostgresDb
 
-from config.settings import DATABASE_URL, EXAM_DATE
-from storage.student_state import StudentState, SessionLog
-from teams.jee_prep_team import create_jee_prep_team
-from workflows.study_session import StudySessionWorkflow
+from jee_agent.config.settings import DATABASE_URL, EXAM_DATE
+from jee_agent.storage.student_state import StudentState, SessionLog
+from jee_agent.teams.jee_prep_team import create_jee_prep_team
+from jee_agent.workflows.study_session import StudySessionWorkflow
 
 # Initialize
 app = typer.Typer()
