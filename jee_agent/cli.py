@@ -238,14 +238,14 @@ def start_session(student: StudentState):
     
     # Main interaction loop
     console.print("\n[green]Ready to start! Type your questions or responses below.[/green]")
-    console.print("[dim]Commands: /plan (show plan), /progress (show progress), /break (take break), /model <provider>, /quit (end session)[/dim]\n")
+    console.print("[dim]Commands: /plan (show plan), /progress (show progress), /break (take break), /model <provider>, /exit (end session)[/dim]\n")
     
     while True:
         try:
             user_input = Prompt.ask("\n[bold blue]You[/bold blue]")
             
             # Handle commands
-            if user_input.lower() == "/quit":
+            if user_input.lower() in ["/quit", "/exit"]:
                 break
             elif user_input.lower().startswith("/model"):
                 parts = user_input.split()
