@@ -103,6 +103,33 @@ python -m agno.os.serve jee_agent.os:agent_os
 
 This will start a FastAPI server that exposes your agentic system as an API, compatible with the Agno Control Plane.
 
+## 🖥️ Running the UI
+
+This project uses the official [Agno Agent UI](https://github.com/agno-agi/agent-ui) for a beautiful graphical interface.
+
+1.  **Start the Backend (AgentOS)**
+    ```bash
+    # From the project root
+    python -m agno.os.serve jee_agent.os:agent_os
+    ```
+    This starts the API server (default: `http://localhost:8000`).
+
+2.  **Setup & Run the Frontend**
+    ```bash
+    # Clone the UI repo (if you haven't already)
+    git clone https://github.com/agno-agi/agent-ui agent-ui
+
+    # Enter directory
+    cd agent-ui
+
+    # Install dependencies
+    npm install
+
+    # Start the development server
+    npm run dev
+    ```
+    The UI will typically start at `http://localhost:3000`. Open this in your browser and connect to your local backend.
+
 ## Key Concepts
 
 ### Multi-Agent Team
